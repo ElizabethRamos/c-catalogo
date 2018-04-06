@@ -37,6 +37,58 @@ void excluir_filme();
 int str_somente_numeros(char str[]);
 
 int main()
-{
+{   
+    char resp;
+
+    while(1)
+    {
+        //obtem a escolha do usuario
+        resp = menu();
+
+        //testa o valor de resp
+        if(resp == 1)
+            cadastrar_filme();
+        else
+        {
+            printf("\nOpção inválida, pressione <enter> para continuar");
+            scanf("%*c");
+
+            //limpa o buffer de entrada
+            fseek(stdin, 0, SEEK_END);
+        }
+        system("clear");    
+    }
+
+    printf("\nBye");
+
     return 0;
+}
+
+char menu()
+{
+    char resp[2];
+    printf("                              Catálogo de filmes                              ");
+    printf("\n\n1 - Cadastrar um filme\n");
+    printf("\n\n2 - Cadastrar um cliente\n");
+    printf("\n\n3 - Listar todos os filmes\n");
+    printf("\n\n4 - Listar todos os clientes\n");
+    printf("\n\n5 - Pesquisar filmes\n");
+    printf("\n\n6 - Pesquisar clientes\n");
+    printf("\n\n7 - Alugar um filme\n");
+    printf("\n\n8 - Entregar um filme\n");
+    printf("\n\n9 - Excluir um filme\n");
+    printf("\n\n0 - Sair\n");
+    printf("Digite o número da opção: ");
+    scanf("%1s%*c", resp);
+
+    fseek(stdin, 0, SEEK_END);
+
+    //se chegou aqui, é porque a opção é valida
+    return resp[0];
+
+}
+
+void cadastrar_filme()
+{
+    
 }
