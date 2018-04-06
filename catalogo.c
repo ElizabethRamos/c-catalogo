@@ -1,117 +1,105 @@
-#ifdef __WIN32
-#define limpar_tela "cls"
-#else
-#define limpar_tela "clear"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// quantidade m�xima de letras do nome do cliente e do filme
 #define MAX 100
 
-// defini��o da struct do filme
-typedef struct filme
+//struct filme
+typedef struct filme 
 {
-	// campos da struct filme
-	int id;
-	int id_cliente;
-	char nome[MAX];
-	float preco;
-} t_filme;
+    int id;
+    int id_cliente;
+    char nome[MAX];
+    float preco;
+}t_filme;
 
-// defini��o da struct cliente
+//struct cliente
 typedef struct cliente
 {
-	// campos da struct cliente
-	int id;
-	char nome[MAX];
-} t_cliente;
+    int id;
+    char nome[MAX];
+}t_cliente;
 
-// prot�tipos de fun��es
+//prototipos de funcoes
+char menu();
+void cadastrar_cliente();
+void cadastrar_filme();
+void listar_filmes();
+void listar_clientes();
+t_filme *obter_filme(FILE *arq_filmes, int id_filme);
+t_cliente *obter_cliente(FILE *arq_clientes, int id_cliente);
+void pesquisar_filme();
+void pesquisar_cliente();
+int existe_filme(FILE *arq_filmes, int id_filme);
+int existe_cliente(FILE *arq_clientes, int id_cliente);
+void atualizar_filmes(FILE *arq_filmes, t_filme *filme_alugado);
+void alugar_filme();
+void excluir_filme();
+int str_somente_numeros(char str[]);
 
-char menu(); // exibe as op��es do programa
-void cadastrar_cliente(); // cadastra um cliente pelo nome
-void cadastrar_filme(); // cadastra um filme com o nome e pre�o
-void listar_filmes(); // exibe todos os filmes cadastrados e as info. de aluguel
-void listar_clientes(); // exibe todos os clientes cadastrados
-t_filme *obter_filme(FILE *arq_filmes, int id_filme); // procuma um filme pelo id
-t_cliente *obter_cliente(FILE *arq_clientes, int id_cliente); // procura um cliente pelo id
-void pesquisar_filme(); // pesquisa por um filme e exibe suas informa��es
-void pesquisar_cliente(); // pesquisa por um cliente e exibe suas informa��es
-int existe_filme(FILE *arq_filmes, int id_filme); // procura um filme pelo seu id
-int existe_cliente(FILE *arq_clientes, int id_cliente); // procura um cliente pelo seu id
-void atualizar_filmes(FILE *arq_filmes, t_filme *filme_alugado); // atualiza as info. do filme
-void alugar_filme(); // aluga um filme
-void excluir_filme(); // exclui um filme
-int str_somente_numeros(char str[]); // informa se a string � um n�mero
+int main()
+{   
+    char resp;
 
-int main(int argc, char *argv[])
-{
-	char resp;
+    while(1)
+    {
+        //obtem a escolha do usuario
+        resp = menu();
 
-	while(1)
-	{
-		// obt�m a escolha do usu�rio
-		resp = menu();
+        //testa o valor de resp
+        if(resp == '1')
+            cadastrar_filme();
+        else
+        {
+            printf("\nOpção inválida, pressione <enter> para continuar");
+            scanf("%*c");
 
-		// testa o valor de resp
-		if(resp == '1')
-			cadastrar_filme();
-		else
-		{
-			printf("\nOpcao invalida! Pressione <Enter> para continuar...");
-			scanf("%*c");
+            //limpa o buffer de entrada
+            fseek(stdin, 0, SEEK_END);
+        }
+        system("clear");    
+    }
 
-			// uma forma de limpar o buffer de entrada
-			fseek(stdin, 0, SEEK_END);
-		}
+    printf("\nBye");
 
-		system(limpar_tela);
-	}
-
-	printf("\nBye! Curso de Linguagem C para Iniciantes ;-)\n");
-
-	return 0;
+    return 0;
 }
 
 char menu()
 {
-	char resp[2];
+    char resp[2];
 
-	printf("                       Catálogo de filmes                         ");
-	printf("\n\n1 - Cadastrar um filme\n");
-	printf("2 - Cadastrar um cliente\n");
-	printf("3 - Listar todos os filmes\n");
-	printf("4 - Listar todos os clientes\n");
-	printf("5 - Pesquisar por filme\n");
-	printf("6 - Pesquisar por cliente\n");
-	printf("7 - Alugar um filme\n");
-	printf("8 - Entregar um filme\n");
-	printf("9 - Excluir um filme\n");
-	printf("0 - Sair\n");
-	printf("Digite o numero da opcao: ");
-	scanf("%1s%*c", resp);
+    printf("                              Catálogo de filmes                              ");
+    printf("\n\n1 - Cadastrar um filme\n");
+    printf("\n\n2 - Cadastrar um cliente\n");
+    printf("\n\n3 - Listar todos os filmes\n");
+    printf("\n\n4 - Listar todos os clientes\n");
+    printf("\n\n5 - Pesquisar filmes\n");
+    printf("\n\n6 - Pesquisar clientes\n");
+    printf("\n\n7 - Alugar um filme\n");
+    printf("\n\n8 - Entregar um filme\n");
+    printf("\n\n9 - Excluir um filme\n");
+    printf("\n\n0 - Sair\n");
+    printf("Digite o número da opção: ");
+    scanf("%1s%*c", resp);
 
-	fseek(stdin, 0, SEEK_END);
+    fseek(stdin, 0, SEEK_END);
 
-	// se chegou aqui, � porque a op��o � v�lida
-	return resp[0];
+    //se chegou aqui, é porque a opção é valida
+    return resp[0];
+
 }
 
 int str_somente_numeros(char str[])
 {
-	int i = 0;
-	int len_str = strlen(str);
+    int i = 0;
+    int len_str = strlen(str);
 
-	for(i = 0; i < len_str; i++)
-	{
-		if(str[i] < '0' || str[i] > '9')
-			return 0;
-	}
-
-	return 1;
+    for(i = 0; i < len_str; i++)
+    {
+        if(str[i] < '0' || str[1] > '9')
+            return 0;
+    }
+    return 1;
 }
 
 void cadastrar_filme()
