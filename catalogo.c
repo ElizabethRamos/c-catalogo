@@ -189,3 +189,4 @@ void cadastrar_filme()
 
 	fseek(stdin, 0, SEEK_END);
 }
+
