@@ -4,7 +4,7 @@
 #define MAX 100
 
 //struct filme
-typedef struct filme 
+typedef struct filme
 {
     int id;
     int id_cliente;
@@ -37,7 +37,7 @@ void excluir_filme();
 int str_somente_numeros(char str[]);
 
 int main()
-{   
+{
     char resp;
 
     while(1)
@@ -49,7 +49,9 @@ int main()
         if(resp == '1')
             cadastrar_filme();
         else if(resp == '2')
-            cadastrar_cliente();     
+            cadastrar_cliente();
+        else if(resp == '3')
+            listar_filmes();
         else
         {
             printf("\nOpção inválida, pressione <enter> para continuar");
@@ -58,7 +60,7 @@ int main()
             //limpa o buffer de entrada
             fseek(stdin, 0, SEEK_END);
         }
-        system("clear");    
+        system("clear");
     }
 
     printf("\nBye");
@@ -132,19 +134,19 @@ void cadastrar_cliente()
     {
         cliente.id = 1;
     }
-    else 
+    else
     {
         t_cliente ultimo_cliente;
 
         //posiciona o arquivo para pegar o ultimo cliente
         fseek(arq_clientes, cont_bytes - sizeof(t_cliente), SEEK_SET);
 
-        //le o ultimo cliente e atribui o id do proximo cliente 
+        //le o ultimo cliente e atribui o id do proximo cliente
         fread(&ultimo_cliente, sizeof(t_cliente), 1, arq_clientes);
 
 		cliente.id = ultimo_cliente.id + 1;
     }
-    printf("\nDigite o nome do cliente: "); 
+    printf("\nDigite o nome do cliente: ");
 
     scanf("%99[^\n]%*c", cliente.nome);
 
@@ -253,3 +255,82 @@ void cadastrar_filme()
 	fseek(stdin, 0, SEEK_END);
 }
 
+void listar_filmes()
+{
+  //abre os arquivos binarios em modo de leitura
+  FILE *arq_filmes = fopen("filmes.bin", "rb");
+  FILE *arq_clientes = fopen("clientes.bin", "rb");
+
+  if(arq_filmes == NULL)
+  {
+    printf("\nFalha ao abrir o arquivo ou ");
+    printf("Não há filmes cadastrados.\n");
+    printf("\nPressione <enter> para continuar...");
+    scanf("%*c");
+
+    //limpa o buffer
+    fseek(stdin, 0, SEEK_END);
+    return;
+  }
+
+  int encontrou_filmes = 0;
+
+  printf("\nListando todos os filmes...\n");
+
+  t_filme filme;
+
+  //loop para pegar todos os filmes
+  while(1)
+  {
+      //atribui a variavel result  o numeto de filmes lidos com sucesso
+      size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+
+      if(result == 0)
+          break;
+
+      encontrou_filmes = 1;
+
+      printf("\nID do filme: %d\n", filme.id);
+      printf("Nome do filme: %s\n", filme.nome);
+      printf("Preço: %.2f\n", filme.preco);
+
+      //se for diferente de -1, entao o filme esta alugado...
+      if(filme.id_cliente != -1)
+      {
+          if(arq_clientes == NULL)
+          {
+              printf("\nFalha ao abrir o arquivo!n");
+              fclose(arq_filmes);
+              exit(1);
+          }
+          //... entao precisamos dos dados do cliente que alugou o filme :)
+          t_cliente *cliente = obter_cliente(arq_clientes, filme.id_cliente);
+          printf("Alugado? Sim. Cliente: %s\n", cliente->nome);
+          free(cliente);
+      }
+      else
+          printf("Alugado? Nao\n");
+  }
+
+  //verifica se encontrou pelo menos um filme
+  if(encontrou_filmes == 0)
+      printf("\nNao ha filmes cadastrados\n");
+
+  if(arq_clientes != NULL)
+        fclose(arq_clientes);
+
+  fclose(arq_filmes);
+
+  printf("\nPressione <enter> para continuar...");
+  scanf("%*c");
+
+  //limpa o buffer
+  fseek(stdin, 0, SEEK_END);
+}
+
+t_cliente *obter_cliente(FILE *arq_clientes, int id_cliente)
+{
+  t_cliente *cliente;
+
+  return cliente;
+}
