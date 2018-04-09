@@ -48,6 +48,8 @@ int main()
         //testa o valor de resp
         if(resp == '1')
             cadastrar_filme();
+        else if(resp == '2')
+            cadastrar_cliente();     
         else
         {
             printf("\nOpção inválida, pressione <enter> para continuar");
@@ -100,6 +102,67 @@ int str_somente_numeros(char str[])
             return 0;
     }
     return 1;
+}
+
+void cadastrar_cliente()
+{
+    //abre um arquivo binario para leitura e escrita (a*b acrescenta dados ao final do arquivo, ou o cria se ele nao existir)
+    FILE *arq_clientes = fopen("clientes.bin", "a+b");
+
+    //teste a abertura do arquivo
+    if(arq_clientes == NULL)
+    {
+        printf("\nFalha ao abrir o arquivo!\n");
+        exit(1);
+    }
+
+    //se abrir...
+    t_cliente cliente;
+
+    int cont_bytes = 0;
+
+    //seta o ponteiro para o final do arquivo
+    fseek(arq_clientes, 0, SEEK_END);
+
+    //pega a quantidade de bytes
+    cont_bytes = ftell(arq_clientes);
+
+    //se cont bytes for igual a zero, nao existe cliente cadastrado, entao atribuimos o 1o id
+    if(cont_bytes == 0)
+    {
+        cliente.id = 1;
+    }
+    else 
+    {
+        t_cliente ultimo_cliente;
+
+        //posiciona o arquivo para pegar o ultimo cliente
+        fseek(arq_clientes, cont_bytes - sizeof(t_cliente), SEEK_SET);
+
+        //le o ultimo cliente e atribui o id do proximo cliente 
+        fread(&ultimo_cliente, sizeof(t_cliente), 1, arq_clientes);
+
+		cliente.id = ultimo_cliente.id + 1;
+    }
+    printf("\nDigite o nome do cliente: "); 
+
+    scanf("%99[^\n]%*c", cliente.nome);
+
+    //limpa o buffer
+    fseek(stdin, 0, SEEK_END);
+
+    //escreve o nome do cliente no arquivo
+    fwrite(&cliente, sizeof(t_cliente), 1, arq_clientes);
+
+    //fecha o arquivo
+    fclose(arq_clientes);
+
+    printf("\nCliente \"%s\" cadastrado com sucesso!\n", cliente.nome);
+    printf("\nPressione <enter> para continuar...");
+    scanf("%*c");
+
+    //limpa o buffer
+    fseek(stdin, 0, SEEK_END);
 }
 
 void cadastrar_filme()
