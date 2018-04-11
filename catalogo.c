@@ -52,6 +52,8 @@ int main()
             cadastrar_cliente();
         else if(resp == '3')
             listar_filmes();
+        else if(resp == '0')
+            break;
         else
         {
             printf("\nOpção inválida, pressione <enter> para continuar");
