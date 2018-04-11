@@ -330,7 +330,27 @@ void listar_filmes()
 
 t_cliente *obter_cliente(FILE *arq_clientes, int id_cliente)
 {
+  //vai para o inicio do arquivo
+  rewind(arq_clientes);
+
   t_cliente *cliente;
+
+  cliente = (t_cliente *)malloc(sizeof(t_cliente));
+
+  while(1)
+  {
+    //atribui a variavel result  o numeto de clientes lidos com sucesso
+    size_t result = fread(cliente, sizeof(t_cliente), 1, arq_clientes);
+
+    if(result == 0)
+    {
+      free(cliente);
+      return NULL;
+    }
+
+    if(cliente->id == id_cliente)
+        break;
+  }
 
   return cliente;
 }
