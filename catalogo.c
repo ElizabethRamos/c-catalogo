@@ -52,6 +52,8 @@ int main()
             cadastrar_cliente();
         else if(resp == '3')
             listar_filmes();
+        else if(resp == '4')
+            listar_clientes();
         else if(resp == '0')
             break;
         else
@@ -355,4 +357,55 @@ t_cliente *obter_cliente(FILE *arq_clientes, int id_cliente)
   }
 
   return cliente;
+}
+
+void listar_clientes()
+{
+  //abre o arquivo binario para leitura
+  FILE *arq_clientes = fopen("clientes.bin", "rb");
+
+  // se o arquivo estiver sem nada..
+  if(arq_clientes == NULL)
+  {
+    printf("\nFalha ao abrir o arquivo ou");
+    printf("Nenhum cliente encontrado.\n");
+    printf("\nPressione <enter> para continuar");
+    scanf("%*c");
+
+    fseek(stdin, 0, SEEK_END);
+    return;
+  }
+
+  //se o arquivo for aberto...
+  int encontrou_clientes = 0;
+  t_cliente cliente;
+
+  printf("\nListando todos os clientes\n");
+
+  while(1)
+  {
+    //atribui para a variavel result o numero de elementos lidos com sucesso
+    size_t result = fread(&cliente, sizeof(t_cliente), 1, arq_clientes);
+
+    if(result == 0)
+        break;
+
+    encontrou_clientes = 1;
+
+    printf("\nID do cliente: %d\n", cliente.id);
+    printf("\nNome do cliente: %s\n", cliente.nome);
+  }
+  //se nao encontrar cliente...
+  if(encontrou_clientes == 0)
+      printf("\nNenhum cliente cadastrado.\n");
+
+  //fecha o arquivo que foi aberto
+  fclose(arq_clientes);
+
+  //e segue!
+  printf("\nPressione <enter> para continuar");
+  scanf("%*c");
+
+  //limpa o buffer de entrada
+  fseek(stdin, 0, SEEK_END);
 }
