@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #define MAX 100
 
 //struct filme
@@ -18,6 +19,19 @@ typedef struct cliente
     int id;
     char nome[MAX];
 }t_cliente;
+
+/**
+ * Convert string s to uppercase
+ */
+char* strupr(char* s)
+{
+  char* p = s;
+  while(*p) {
+    *p = toupper(*p);
+		++p;
+	}
+  return s;
+}
 
 //prototipos de funcoes
 char menu();
@@ -54,6 +68,8 @@ int main()
             listar_filmes();
         else if(resp == '4')
             listar_clientes();
+        else if(resp == '5')
+            pesquisar_filme();
         else if(resp == '0')
             break;
         else
@@ -408,4 +424,73 @@ void listar_clientes()
 
   //limpa o buffer de entrada
   fseek(stdin, 0, SEEK_END);
+}
+
+void pesquisar_filme()
+{
+	char nome[MAX];
+	int encontrou_filme = 0;
+
+	FILE *arq_filmes = fopen("filmes.bin", "rb");
+	FILE *arq_clientes = fopen("clientes.bin", "rb");
+
+	if(arq_filmes == NULL)
+	{
+		printf("\nFalha ao abrir arquivo(s)!\n");
+		exit(1); // aborta o programa
+	}
+
+	printf("\nDigite o nome do filme: ");
+	scanf("%99[^\n]%*c", nome);
+
+	printf("\nFilmes com o nome \"%s\":\n\n", nome);
+
+	t_filme filme;
+
+	while(1)
+	{
+		size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+
+		if(result == 0)
+			break;
+
+		char nome_aux[MAX];
+
+		strcpy(nome_aux, filme.nome);
+
+		if(strcmp(strupr(nome_aux), strupr(nome)) == 0)
+		{
+			printf("ID do filme: %d\n", filme.id);
+			printf("Preco: %.2lf\n", filme.preco);
+
+			if(filme.id_cliente != -1)
+			{
+				if(arq_clientes == NULL)
+				{
+					printf("\nFalha ao abrir arquivo!\n");
+					fclose(arq_filmes);
+					exit(1);
+				}
+
+				t_cliente *cliente = obter_cliente(arq_clientes, filme.id_cliente);
+
+				printf("Alugado? Sim. Cliente: %s\n", cliente->nome);
+				free(cliente);
+			}
+			else
+				printf("Alugado? Nao\n");
+			encontrou_filme = 1;
+			printf("\n");
+		}
+	}
+
+	if(encontrou_filme == 0)
+		printf("Nenhum filme encontrado.\n\n");
+
+	fclose(arq_filmes);
+
+	printf("Pressione <Enter> para continuar...");
+	scanf("%*c");
+
+	fseek(stdin, 0, SEEK_END);
 }
