@@ -70,6 +70,8 @@ int main()
             listar_clientes();
         else if(resp == '5')
             pesquisar_filme();
+        else if(resp == '6')
+            pesquisar_cliente();
         else if(resp == '0')
             break;
         else
@@ -493,4 +495,59 @@ void pesquisar_filme()
 	scanf("%*c");
 
 	fseek(stdin, 0, SEEK_END);
+}
+
+void pesquisar_cliente()
+{
+  char nome[MAX];
+  int encontrou_cliente = 0;
+
+  //abre o arquivo
+  FILE *arq_clientes = fopen("clientes.bin", "rb");
+
+  //testa a abertura do arquivo
+  if(arq_clientes == NULL)
+  {
+    printf("Falha ao abrir o arquivo\n");
+    exit(1);
+  }
+
+  //pede para digitar o nome do cliente
+  printf("\nDigite o nome do cliente: ");
+  scanf("%99[^\n]%*c", nome);
+
+	printf("\nClientes com o nome \"%s\":\n\n", nome);
+
+  t_cliente cliente;
+
+  while(1)
+  {
+    //retorna a quantidade de arquivos lidos
+    size_t result = fread(&cliente, sizeof(t_cliente), 1, arq_clientes);
+
+    if(result == 0)
+      break;
+
+    char nome_aux[MAX];
+
+    strcpy(nome_aux, cliente.nome);
+
+    //verifica se nome_aux é igual a nome
+    if(strcmp(strupr(nome_aux), strupr(nome)) == 0)
+    {
+      //mostra os dados do cliente
+      printf("ID do cliente: %d\n\n", cliente.id);
+      encontrou_cliente = 1;
+    }
+  }
+
+  if(encontrou_cliente == 0)
+    printf("Nenhum cliente encontrado.\n\n");
+
+    fclose(arq_clientes);
+
+  	printf("Pressione <Enter> para continuar...");
+  	scanf("%*c");
+
+  	fseek(stdin, 0, SEEK_END);
 }
