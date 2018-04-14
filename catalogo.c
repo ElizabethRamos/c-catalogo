@@ -72,6 +72,8 @@ int main()
             pesquisar_filme();
         else if(resp == '6')
             pesquisar_cliente();
+        else if(resp == '7')
+            alugar_filme();
         else if(resp == '0')
             break;
         else
@@ -550,4 +552,101 @@ void pesquisar_cliente()
   	scanf("%*c");
 
   	fseek(stdin, 0, SEEK_END);
+}
+
+void alugar_filme()
+{
+  char str_id_cliente[10];
+  int id_cliente;
+
+  //abre os arquivos
+  FILE *arq_filmes = fopen("filmes.bin", "rb");
+	FILE *arq_clientes = fopen("clientes.bin", "rb");
+
+//se or arquivos nao existirem, cria os arquivos
+  if(arq_filmes == NULL)
+  {
+      arq_filmes = fopen("filmes.bin", "wb+");
+      if(arq_filmes == NULL)
+      {
+        printf("\nFalha ao abrir o arquivo");
+        exit(1); // aborta
+      }
+  }
+
+  if(arq_clientes == NULL)
+  {
+      arq_clientes = fopen("clientes.bin", "wb+");
+      if(arq_clientes == NULL)
+      {
+        printf("\nFalha ao abrir o arquivo");
+        exit(1); // aborta
+      }
+  }
+
+  //obtem o id do cliente
+  printf("\nDigite o ID do cliente ");
+  scanf("%10s%*c", str_id_cliente);
+
+  fseek(stdin, 0, SEEK_END);
+
+  //verifica se o id tem somente_numeros
+  if(str_somente_numeros(str_id_cliente) == 1)
+  {
+    //preenche a variavel id_cliente com o valor de str_id_cliente
+      sscanf(str_id_cliente, "%d", &id_cliente);
+
+      //verifica se o cliente existe
+      if(existe_cliente(arq_clientes, id_cliente))
+      {
+          char str_id_filme[10];
+          int id_filme;
+
+          //pega o id do filme a ser aligado
+          printf("\nDigite o ID do filme: ");
+          scanf("%10s%*c", str_id_filme);
+
+          fseek(stdin, 0, SEEK_END);
+
+          if(str_somente_numeros(str_id_filme) == 1)
+          {
+            //preenche a variavel id_filme com o valor de str_id_filme
+            sscanf(str_id_filme, "%d", &id_filme);
+
+            //obtem o filme pelo id
+            t_filme *filme = obter_filme(arq_filmes, id_filme);
+
+            //testa se o filme existe
+            if(filme != NULL)
+            {   //testa se o filme foi alugado
+                if(filme->id_cliente != -1)
+                    printf("\n O filme \"%s\" ja esta alugado\n", filme->nome);
+                else
+                {
+                  filme->id_cliente = id_cliente;
+                  atualizar_filmes(arq_filmes, filme);
+                  printf("\nFilme  \"%s\" alugado com sucesso\n", filme->nome);
+                }
+                free(filme);
+            }
+            else
+              printf("\nNao existe filme com o ID \"%d\".\n", id_filme);
+          }
+          else
+            printf("\no ID só pode conter numeros\n");
+      }
+        else
+          printf("\nNao existe cliente com o ID \"%d\".\n", id_cliente);
+  }
+    else
+      printf("\nID so pode conter numeros\n");
+
+      fclose(arq_clientes);
+      fclose(arq_filmes);
+
+      printf("\nPressione <enter> para continuar...");
+      scanf("%*c");
+
+      //limpa o buffer
+      fseek(stdin, 0, SEEK_END);
 }
