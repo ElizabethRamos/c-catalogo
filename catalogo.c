@@ -699,3 +699,32 @@ t_filme *obter_filme(FILE *arq_filmes, int id_filme)
   free(filme);
   return NULL;
 }
+
+void atualizar_filmes(FILE *arq_filmes, t_filme *filme_alugado)
+{
+  //vai para o inicio do arquivo
+  rewind(arq_filmes);
+
+  t_filme filme;
+
+  while (1)
+  {
+    //atribui a variavel result  o numeto de filmes lidos com sucesso
+    size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+
+    if(result == 0)
+        break;
+
+    if(filme.id == filme_alugado->id)
+    {
+      //posiciona o arquivo
+      fseek(arq_filmes, - sizeof(t_filme), SEEK_CUR);
+
+      //atualiza o filme
+      fwrite(filme_alugado, sizeof(t_filme), 1, arq_filmes);
+
+      //sai do loop
+      break;
+    }
+  }
+}
