@@ -650,3 +650,25 @@ void alugar_filme()
       //limpa o buffer
       fseek(stdin, 0, SEEK_END);
 }
+
+int existe_cliente(FILE *arq_clientes, int id_cliente)
+{
+  //vai para o inicio do arquivo
+  rewind(arq_clientes);
+
+  t_cliente cliente;
+
+  while (1)
+  {
+    //atribui a variavel result  o numeto de filmes lidos com sucesso
+    size_t result = fread(&cliente, sizeof(t_cliente), 1, arq_clientes);
+
+    if(result == 0)
+        break;
+    //se o id for igual, retornamos 1, indicando que o cliente existe
+    if(cliente.id == id_cliente)
+        return 1;
+  }
+
+  return 0;
+}
