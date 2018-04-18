@@ -672,3 +672,30 @@ int existe_cliente(FILE *arq_clientes, int id_cliente)
 
   return 0;
 }
+
+t_filme *obter_filme(FILE *arq_filmes, int id_filme)
+{
+  //vai para o incio do arquivo
+  rewind(arq_filmes);
+
+  t_filme *filme;
+
+  //aloca a variavel dinamicamente
+  filme = (t_filme *)malloc(sizeof(t_filme));
+
+  while (1)
+  {
+    //atribui a variavel result  o numeto de filmes lidos com sucesso
+    size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+
+    //se o arquivo nao tiver nada, sai do loop
+    if(result == 0)
+        break;
+    //se os ids forem iguais, retorna o filme
+    if(filme->id == id_filme)
+          return filme;
+  }
+  //libera a memoria
+  free(filme);
+  return NULL;
+}
