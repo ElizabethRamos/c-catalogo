@@ -686,7 +686,7 @@ t_filme *obter_filme(FILE *arq_filmes, int id_filme)
   while (1)
   {
     //atribui a variavel result  o numeto de filmes lidos com sucesso
-    size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+    size_t result = fread(filme, sizeof(t_filme), 1, arq_filmes);
 
     //se o arquivo nao tiver nada, sai do loop
     if(result == 0)
