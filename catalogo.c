@@ -882,3 +882,23 @@ void excluir_filme()
 
 	fseek(stdin, 0, SEEK_END);
 }
+
+int existe_filme(FILE *arq_filmes, int id_filme)
+{
+	rewind(arq_filmes);
+
+	t_filme filme;
+
+	while(1)
+	{
+		size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+
+		if(result == 0)
+			break;
+
+		if(filme.id == id_filme)
+			return 1;
+	}
+
+	return 0;
+}
