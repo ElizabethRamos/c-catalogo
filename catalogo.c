@@ -795,6 +795,19 @@ void entregar_filme()
     fseek(stdin, 0, SEEK_END);
 }
 
+int confirma_exclusao() {
+  char resp[2];
+
+  printf("Tem certeza que deseja deletar? Digite 1 para sim, 0 para nao: ");
+  scanf("%1s%*c", resp);
+
+  fseek(stdin, 0, SEEK_END);
+
+  //se chegou aqui, é porque a opção é valida
+  return (resp[0] == '1');
+
+}
+
 void excluir_filme()
 {
 	char str_id_filme[10];
@@ -805,77 +818,80 @@ void excluir_filme()
 
 	fseek(stdin, 0, SEEK_END);
 
-	if(str_somente_numeros(str_id_filme) == 1)
-	{
-		sscanf(str_id_filme, "%d", &id_filme);
+  if(confirma_exclusao())
+  {
+  	 if(str_somente_numeros(str_id_filme) == 1)
+  	{
+  		sscanf(str_id_filme, "%d", &id_filme);
 
-		FILE *arq_filmes = fopen("filmes.bin", "rb");
+  		FILE *arq_filmes = fopen("filmes.bin", "rb");
 
-		if(arq_filmes == NULL)
-		{
-			printf("\nFalha ao abrir arquivo(s)!\n");
-			exit(1); // aborta o programa
-		}
+  		if(arq_filmes == NULL)
+  		{
+  			printf("\nFalha ao abrir arquivo(s)!\n");
+  			exit(1); // aborta o programa
+  		}
 
-		if(existe_filme(arq_filmes, id_filme) == 1)
-		{
-			char nome_filme[MAX];
+  		if(existe_filme(arq_filmes, id_filme) == 1)
+  		{
+  			char nome_filme[MAX];
 
-			FILE *arq_temp = fopen("temp_filmes.bin", "a+b");
+  			FILE *arq_temp = fopen("temp_filmes.bin", "a+b");
 
-			if(arq_temp == NULL)
-			{
-				printf("\nFalha ao criar arquivo temporario!\n");
-				fclose(arq_filmes);
-				exit(1); // aborta o programa
-			}
+  			if(arq_temp == NULL)
+  			{
+  				printf("\nFalha ao criar arquivo temporario!\n");
+  				fclose(arq_filmes);
+  				exit(1); // aborta o programa
+  			}
 
-			rewind(arq_filmes);
+  			rewind(arq_filmes);
 
-			t_filme filme;
+  			t_filme filme;
 
-			while(1)
-			{
-				size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
+  			while(1)
+  			{
+  				size_t result = fread(&filme, sizeof(t_filme), 1, arq_filmes);
 
-				if(result == 0)
-					break;
+  				if(result == 0)
+  					break;
 
-				if(filme.id != id_filme)
-				{
-					fwrite(&filme, sizeof(t_filme), 1, arq_temp);
-				}
-				else
-					strcpy(nome_filme, filme.nome);
-			}
+  				if(filme.id != id_filme)
+  				{
+  					fwrite(&filme, sizeof(t_filme), 1, arq_temp);
+  				}
+  				else
+  					strcpy(nome_filme, filme.nome);
+  			}
 
-			fclose(arq_filmes);
-			fclose(arq_temp);
+  			fclose(arq_filmes);
+  			fclose(arq_temp);
 
-			if(remove("filmes.bin") != 0)
-				printf("\nErro ao deletar o arquivo \"filmes.bin\"\n");
-			else
-			{
-				// renomeia o arquivo
-				int r = rename("temp_filmes.bin", "filmes.bin");
+  			if(remove("filmes.bin") != 0)
+  				printf("\nErro ao deletar o arquivo \"filmes.bin\"\n");
+  			else
+  			{
+  				// renomeia o arquivo
+  				int r = rename("temp_filmes.bin", "filmes.bin");
 
-				if(r != 0)
-				{
-					printf("\nPermissao negada para renomear o arquivo!\n");
-					printf("Feche esse programa bem como o arquivo \"temp_filmes.bin\" e renomeie manualmente para \"filmes.bin\"\n");
-				}
-				else
-					printf("\nFilme \"%s\" removido com sucesso!\n", nome_filme);
-			}
-		}
-		else
-		{
-			fclose(arq_filmes);
-			printf("\nNao existe filme com o ID \"%d\".\n", id_filme);
-		}
-	}
-	else
+  				if(r != 0)
+  				{
+  					printf("\nPermissao negada para renomear o arquivo!\n");
+  					printf("Feche esse programa bem como o arquivo \"temp_filmes.bin\" e renomeie manualmente para \"filmes.bin\"\n");
+  				}
+  				else
+  					printf("\nFilme \"%s\" removido com sucesso!\n", nome_filme);
+  			}
+  		}
+  		else
+  		{
+  			fclose(arq_filmes);
+  			printf("\nNao existe filme com o ID \"%d\".\n", id_filme);
+  		}
+  	}
+  	else
 		printf("\nO ID so pode conter numeros!\n");
+  }
 
 	printf("\nPressione <Enter> para continuar...");
 	scanf("%*c");
