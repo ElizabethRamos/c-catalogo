@@ -48,6 +48,7 @@ int existe_cliente(FILE *arq_clientes, int id_cliente);
 void atualizar_filmes(FILE *arq_filmes, t_filme *filme_alugado);
 void alugar_filme();
 void excluir_filme();
+void entregar_filme();
 int str_somente_numeros(char str[]);
 
 int main()
@@ -74,6 +75,8 @@ int main()
             pesquisar_cliente();
         else if(resp == '7')
             alugar_filme();
+        else if(resp == '8')
+              entregar_filme();
         else if(resp == '0')
             break;
         else
@@ -727,4 +730,65 @@ void atualizar_filmes(FILE *arq_filmes, t_filme *filme_alugado)
       break;
     }
   }
+}
+
+void entregar_filme()
+{
+    char str_id_filme[10];
+    int id_filme;
+
+    //abre o arquivo para leitura e atualizacao
+    FILE *arq_filmes = fopen("filmes.bin", "rb+");
+
+    //testa se arq_filmes eh null
+    if (arq_filmes == NULL)
+    {
+        //se for null, cria o arquivo
+        arq_filmes = fopen("filmes.bin", "wb+");
+        if (arq_filmes == NULL)
+        {
+          printf("\nFalha ao abrir o arquivo\n");
+          exit(1); //aborta
+        }
+    }
+
+    printf("\nDigite o ID do filme :");
+    scanf("%10s%*c", str_id_filme);
+
+    fseek(stdin, 0, SEEK_END);
+
+    if (str_somente_numeros(str_id_filme) == 1)
+    {
+      //se o ID for valido, preenche a variavel com ele
+        sscanf(str_id_filme, "%d", &id_filme);
+
+        //obtem o id do filme
+        t_filme *filme = obter_filme(arq_filmes, id_filme);
+
+        //testa se o filme existe
+        if (filme != NULL)
+        {
+            if (filme->id_cliente == -1)
+                printf("\nO filme \"%s\", ja esta disponivel\n", filme->nome);
+            else
+            {
+                filme->id_cliente = -1;
+                atualizar_filmes(arq_filmes, filme); //atualiza o filme no arquivo
+                printf("\nFilme \"%s\" devolvido com sucesso\n", filme->nome);
+            }
+
+            free(filme);
+        }
+        else
+            printf("\nNao existe o filme com o ID \"%d\".\n", id_filme);
+    }
+    else
+        printf("\nO ID so pode conter numeros\n");
+
+    fclose(arq_filmes);
+
+    printf("\nPressione <enter> para continuar");
+    scanf("%*c");
+
+    fseek(stdin, 0, SEEK_END);
 }
