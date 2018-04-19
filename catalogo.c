@@ -48,6 +48,7 @@ int existe_cliente(FILE *arq_clientes, int id_cliente);
 void atualizar_filmes(FILE *arq_filmes, t_filme *filme_alugado);
 void alugar_filme();
 void excluir_filme();
+void excluir_cliente();
 void entregar_filme();
 int str_somente_numeros(char str[]);
 
@@ -80,6 +81,8 @@ int main()
         else if (resp == '9')
             excluir_filme();
         else if(resp == '0')
+            excluir_cliente();
+        else if(resp == 'E')
             break;
         else
         {
@@ -99,7 +102,7 @@ int main()
 
 char menu()
 {
-    char resp[2];
+    char resp[4];
 
     printf("                              Catálogo de filmes                              ");
     printf("\n\n1 - Cadastrar um filme\n");
@@ -111,8 +114,10 @@ char menu()
     printf("\n\n7 - Alugar um filme\n");
     printf("\n\n8 - Entregar um filme\n");
     printf("\n\n9 - Excluir um filme\n");
-    printf("\n\n0 - Sair\n");
-    printf("Digite o número da opção: ");
+    printf("\n\n0 - Excluir um cliente\n");
+    printf("\n\nexit- Digite E para sair\n");
+
+    printf("Digite a opção: ");
     scanf("%1s%*c", resp);
 
     fseek(stdin, 0, SEEK_END);
@@ -917,4 +922,95 @@ int existe_filme(FILE *arq_filmes, int id_filme)
 	}
 
 	return 0;
+}
+
+void excluir_cliente()
+{
+	char str_id_cliente[10];
+	int id_cliente;
+
+	printf("\nDigite o ID do cliente: ");
+	scanf("%10s%*c", str_id_cliente);
+
+	fseek(stdin, 0, SEEK_END);
+
+  if(confirma_exclusao())
+  {
+  	 if(str_somente_numeros(str_id_cliente) == 1)
+  	{
+  		sscanf(str_id_cliente, "%d", &id_cliente);
+
+  		FILE *arq_clientes = fopen("clientes.bin", "rb");
+
+  		if(arq_clientes == NULL)
+  		{
+  			printf("\nFalha ao abrir arquivo(s)!\n");
+  			exit(1); // aborta o programa
+  		}
+
+  		if(existe_cliente(arq_clientes, id_cliente) == 1)
+  		{
+  			char nome_cliente[MAX];
+
+  			FILE *arq_temp = fopen("temp_clientes.bin", "a+b");
+
+  			if(arq_temp == NULL)
+  			{
+  				printf("\nFalha ao criar arquivo temporario!\n");
+  				fclose(arq_clientes);
+  				exit(1); // aborta o programa
+  			}
+
+  			rewind(arq_clientes);
+
+  			t_cliente cliente;
+
+  			while(1)
+  			{
+  				size_t result = fread(&cliente, sizeof(t_cliente), 1, arq_clientes);
+
+  				if(result == 0)
+  					break;
+
+  				if(cliente.id != id_cliente)
+  				{
+  					fwrite(&cliente, sizeof(t_cliente), 1, arq_temp);
+  				}
+  				else
+  					strcpy(nome_cliente, cliente.nome);
+  			}
+
+  			fclose(arq_clientes);
+  			fclose(arq_temp);
+
+  			if(remove("clientes.bin") != 0)
+  				printf("\nErro ao deletar o arquivo \"clientes.bin\"\n");
+  			else
+  			{
+  				// renomeia o arquivo
+  				int r = rename("temp_clientes.bin", "clientes.bin");
+
+  				if(r != 0)
+  				{
+  					printf("\nPermissao negada para renomear o arquivo!\n");
+  					printf("Feche esse programa bem como o arquivo \"temp_clientes.bin\" e renomeie manualmente para \"clientes.bin\"\n");
+  				}
+  				else
+  					printf("\nCliente \"%s\" removido com sucesso!\n", nome_cliente);
+  			}
+  		}
+  		else
+  		{
+  			fclose(arq_clientes);
+  			printf("\nNao existe cliente com o ID \"%d\".\n", id_cliente);
+  		}
+  	}
+  	else
+		printf("\nO ID so pode conter numeros!\n");
+  }
+
+	printf("\nPressione <Enter> para continuar...");
+	scanf("%*c");
+
+	fseek(stdin, 0, SEEK_END);
 }
